@@ -1,0 +1,137 @@
+Provide a list of customer names, along with the total dollar amount each customer has spent:
+SELECT Customer.First, Customer.Last, SUM(Book.Price) AS total_spent
+FROM Customer
+JOIN Purchases ON Customer.Customer_id = Purchases.Customer_id
+JOIN Book ON Purchases.ISBN = Book.ISBN
+GROUP BY Customer.Customer_id;
+
+Provide a list of customer names and e-mail addresses for customers who have spent more than the
+average customer:
+SELECT Customer.First, Customer.Last, Customer.Email
+FROM Customer
+INNER JOIN (
+    SELECT Customer_id, SUM(Price) AS total_spent
+    FROM Purchases
+    JOIN Book ON Purchases.ISBN = Book.ISBN
+    GROUP BY Customer_id
+    ) AS customer_spending ON Customer.Customer_id = customer_spending.Customer_id
+WHERE customer_spending.total_spent > (
+    SELECT AVG(total_spent)
+    FROM (
+        SELECT Customer_id, SUM(Price) AS total_spent
+        FROM Purchases
+        JOIN Book ON Purchases.ISBN = Book.ISBN
+        GROUP BY Customer_id
+    ) AS customer_spending_avg
+);
+
+Provide a list of the titles in the database and associated total copies sold to customers, sorted from the
+title that has sold the most individual copies to the title that has sold the least:
+SELECT Book.Title, COUNT(Purchase_History.ISBN) AS TotalCopiesSold
+FROM Book
+JOIN Purchase_History ON Book.ISBN = Purchase_History.ISBN
+GROUP BY Book.Title
+ORDER BY TotalCopiesSold DESC;
+
+Provide a list of the titles in the database and associated dollar totals for copies sold to customers,
+sorted from the title that has sold the highest dollar amount to the title that has sold the smallest:
+SELECT Book.Title, (Book.Price * COUNT(Purchase_History.ISBN)) AS TotalDollarAmount
+FROM Book
+INNER JOIN Purchase_History ON Book.ISBN = Purchase_History.ISBN
+GROUP BY Book.Title
+ORDER BY TotalDollarAmount DESC;
+
+Find the most popular author in the database (i.e. the one who has sold the most books):
+SELECT Book.Author, COUNT(*) AS TotalSales
+FROM Book
+JOIN Purchases ON Book.ISBN = Purchases.ISBN
+GROUP BY Book.Author
+ORDER BY TotalSales DESC;
+
+Find the most profitable author in the database for this store (i.e. the one who has brought in the most
+money)
+SELECT Book.Author, SUM(Book.Price) * COUNT(Purchases.ISBN) AS TotalRevenue
+FROM Book
+JOIN Purchases ON Book.ISBN = Purchases.ISBN
+GROUP BY Book.Author
+ORDER BY TotalRevenue DESC;
+
+Provide a list of customer information for customers who purchased anything written by the most
+profitable author in the database:
+SELECT DISTINCT Customer.Customer_id, Customer.First, Customer.Last, Customer.Balance
+FROM Customer
+JOIN Purchases ON Customer.Customer_id = Purchases.Customer_id
+JOIN Book ON Purchases.ISBN = Book.ISBN
+WHERE Book.Author = (SELECT Book.Author
+                     FROM Book
+                     JOIN Purchase_History ON Book.ISBN = Purchase_History.ISBN
+                     GROUP BY Book.Author
+                     ORDER BY Book.Price * COUNT(Purchase_History.ISBN) DESC
+                     LIMIT 1);
+
+SELECT DISTINCT Book.Author
+FROM Book
+JOIN Purchases ON Book.ISBN = Purchases.ISBN
+JOIN (
+  SELECT AVG(Balance) AS avg_balance
+  FROM Customer
+) AS avg_cust ON Purchases.Customer_id = Customer.Customer_id
+JOIN Customer ON Purchases.Customer_id = Customer.Customer_id
+WHERE Customer.Balance > avg_cust.avg_balance
+
+Find the customer with the most reviews:
+SELECT Customer.First, Customer.Last, COUNT(Ratings.Rating_id) AS total_reviews
+FROM Customer
+JOIN Ratings ON Customer.Customer_id = Ratings.customer_id
+GROUP BY Customer.Customer_id
+ORDER BY total_reviews DESC
+LIMIT 1;
+
+
+List all of the books ratings:
+SELECT Book.Title, Ratings.star_no, Customer.First, Customer.Last
+FROM Book
+JOIN Ratings ON Book.ISBN = Ratings.ISBN
+JOIN Customer ON Ratings.customer_id = Customer.Customer_id;
+
+
+Find all the titles from a publisher “x”:
+SELECT Title
+FROM Book
+JOIN Publisher ON Book.Publisher_no = Publisher.Publisher_no
+WHERE Publisher.publisher_name = 'x';
+
+Find the titles of all books by Pratchett that cost less than $10:
+SELECT *
+FROM Book
+WHERE Author LIKE '%Pratchett' AND Price < 10
+
+Give all the titles and their dates of purchase made by a single customer:
+SELECT Book.Title, Purchases.Date
+FROM Book, Purchases
+WHERE Book.ISBN = Purchases.ISBN AND Purchases.Customer_id = 'CustomerId';
+
+Find the titles and ISBNs for all books with less than 5 copies in stock:
+SELECT Book.Title, Book.ISBN
+FROM Book, Stock
+WHERE Book.ISBN = Stock.ISBN AND Stock.Amount < 5;
+
+Give all the customers who purchased a book by Pratchett and the titles of Pratchett books they
+purchased:
+SELECT Customer.First, Customer.Last, Book.Title
+FROM Customer, Purchases, Book
+WHERE Customer.Customer_id = Purchases.Customer_id 
+AND Purchases.ISBN = Book.ISBN
+AND Book.Author LIKE '%Pratchett';
+
+Find the total number of books purchased by a single customer:
+SELECT COUNT(*)
+FROM Purchases
+WHERE Customer_id = 'CustomerId';
+
+SELECT Customer.First, Customer.Last, COUNT(Purchases.ISBN) AS total_books
+FROM Customer
+JOIN Purchases ON Customer.Customer_id = Purchases.Customer_id
+GROUP BY Customer.Customer_id
+ORDER BY total_books DESC
+LIMIT 1;

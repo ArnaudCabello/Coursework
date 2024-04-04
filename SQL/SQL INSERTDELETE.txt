@@ -1,0 +1,20 @@
+Insert a new publisher:
+insert into Publisher(Publisher_No, Publisher_Name)
+    VALUES (58, "Scribner" )
+
+Insert a new book:
+insert into Book(ISBN, Author, Title, Year, Price, Category, Publisher_No)
+    VALUES(9780743273565,"F. Scott Fitzgerald","The Great Gatsby: The Only Authorized Edition", 2004, 7.29, "Tragedy", 58)
+
+Insert a new customer:
+insert into Customer(customer_id, balance, first, last, email)
+    values (21, 210, "James", "Smith", "JSmith10@gmail.com" )
+
+Delete book:
+delete from Book where title like "%gatsby%"
+
+Delete customer:
+delete from Customer where First like "%james%"
+
+Delete publisher:
+delete from Publisher where Publisher_Name like "%Scribner%"

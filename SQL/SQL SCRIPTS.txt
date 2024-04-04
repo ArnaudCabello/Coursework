@@ -1,0 +1,113 @@
+create table main.Customer
+(
+    Customer_ID integer
+        primary key,
+    Balance     integer,
+    First       varchar(20),
+    Last        varchar(20),
+    Email       varchar(20)
+);
+
+create table main.Publisher
+(
+    Publisher_No   integer,
+    Publisher_Name varchar(20)
+);
+
+create table main.Book
+(
+    ISBN         integer
+        primary key,
+    Author       varchar(20),
+    Title        varchar(20),
+    Year         integer,
+    Price        Float,
+    Category     varchar(20),
+    Publisher_No integer
+        constraint "Publisher_No."
+            references main.Publisher (Publisher_No)
+);
+
+create table main.Purchases
+(
+    "Transaction_No." integer
+        primary key,
+    Date              DATE,
+    ISBN              integer
+        constraint ISBN
+            references main.Book,
+    Customer_ID       integer
+        constraint Customer_ID
+            references main.Customer
+);
+
+create table main.Purchase_History
+(
+    ISBN              integer
+        constraint ISBN
+            references main.Book,
+    "Transaction_No." integer
+        constraint "Transaction_No."
+            references main.Purchases
+);
+
+create table main.Ratings
+(
+    Rating_ID   integer
+        primary key,
+    Customer_ID integer
+        constraint Customer_ID
+            references main.Customer,
+    Star_No     integer,
+    ISBN        integer
+);
+
+create table main.Restock
+(
+    Publisher_No integer
+        constraint "Publisher_No."
+            references main.Publisher (""),
+    Amount       integer,
+    Cost         REAL,
+    ISBN         integer
+        constraint ISBN
+            references main.Book
+);
+
+create table main.Reviews
+(
+    Customer_ID integer
+        constraint Customer_ID
+            references main.Customer,
+    Rating_ID   integer
+        constraint Rating_ID
+            references main.Ratings
+);
+
+create table main.Sales
+(
+    "Transaction_No." integer
+        constraint "Transaction_No."
+            references main.Purchases,
+    Earnings          REAL
+);
+
+create table main.Stock
+(
+    ISBN   integer
+        constraint ISBN
+            references main.Book,
+    Amount integer
+);
+
+create table main.Waitlist
+(
+    Customer_ID integer
+        constraint Customer_ID
+            references main.Customer,
+    Position    integer,
+    ISBN        integer
+        constraint ISBN
+            references main.Book
+);
+
