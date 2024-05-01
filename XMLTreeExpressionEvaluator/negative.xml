@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<expression>
-  <minus>
-    <number value="6" />
-    <number value="7" />
-  </minus>
-</expression>
